@@ -93,3 +93,111 @@ END;
 /
 select * from emp1;
 -----------------------------------------------------------------------------
+/*CONTROL STRUCTURES:control the flow of the of execution statemetns.
+*it can be catagories into 3-types:
+1.condition control structures:-control the flow of execution of statement based on the condtion.*/
+--A)IF..THEN:-
+DECLARE 
+  AGE INT;
+BEGIN
+  AGE:=&AGE;
+  IF AGE>=18 THEN
+    DBMS_OUTPUT.PUT_LINE(AGE ||' IS ' || 'Eligible for vote');
+  END IF;
+END;
+/
+SET SERVEROUTPUT ON;
+set verify off;
+--B)IF..ELSIF..THEN :-EVEN OR ODD
+DECLARE 
+  I INT:=&I;
+BEGIN
+  IF I>0 THEN
+    DBMS_OUTPUT.PUT_LINE(I ||' IS POSITIVE');
+  ELSIF I<0 THEN
+    DBMS_OUTPUT.PUT_LINE(I || ' IS NEGATIVE');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE(I || ' IS ZERO');
+  END IF;
+END;
+/
+--C)NEASTED IF: IF INSIDE ANOTHER IF
+DECLARE
+  X INT:=&X;
+  Y INT:=&Y;
+  Z INT:=&Z;
+BEGIN 
+  IF X>Y THEN
+    IF X>Z THEN
+      DBMS_OUTPUT.PUT_LINE(X || ' X IS GREATER');
+    ELSE
+      DBMS_OUTPUT.PUT_LINE(Z || ' Z IS GREATER');
+    END IF;
+  ELSE 
+      IF Y>Z THEN
+          DBMS_OUTPUT.PUT_LINE(Y ||' Y IS GREATER');
+      ELSE
+        DBMS_OUTPUT.PUT_LINE(Z || ' Z IS GREATER');
+      END IF;
+  END IF;
+END;
+/
+/*C)CASE:
+1.SIMPLE CASE:EQUALITY*/
+DECLARE
+  N INT:=15;
+BEGIN
+  CASE mod(N,2)
+    WHEN 0 THEN
+      DBMS_OUTPUT.PUT_LINE(N ||' IS EVEN ');
+    WHEN 1 THEN 
+      DBMS_OUTPUT.PUT_LINE(N || ' IS ODD');
+  END CASE;
+END;
+/
+/*2.SEARCHED CASE:
+NON-EQUALITY
+*/
+DECLARE
+  I INT:=&I;
+BEGIN
+  CASE
+    WHEN I>0 THEN
+      DBMS_OUTPUT.PUT_LINE(I || ' IS POSITIVE');
+    WHEN I<0 THEN
+      DBMS_OUTPUT.PUT_LINE(I || ' IS NEGATIVE');
+    ELSE
+      DBMS_OUTPUT.PUT_LINE(I || ' IS ZERO');
+  END CASE;
+END;
+/
+
+          
+        
+      
+-----------------------------------------------------
+--SIMPLE LOOP:
+DECLARE 
+  N INT;
+BEGIN 
+  FOR N IN 1..10
+  LOOP
+    DBMS_OUTPUT.PUT_LINE(N);
+  END LOOP;
+END;
+/
+------------------------------------------------------------------------------
+DECLARE 
+  I INT;
+BEGIN
+  FOR I IN REVERSE 1..5
+  LOOP
+    DBMS_OUTPUT.PUT_LINE(I);
+  END LOOP;
+END;
+/
+---------------------------------------------------------------------------------------------
+--2.looping control structures:-which is used for repeatedly execute the statemnets in the loop.
+--3.jumping control structures:-used for jump from loop.
+
+
