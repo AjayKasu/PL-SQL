@@ -171,12 +171,85 @@ BEGIN
   END CASE;
 END;
 /
-
-          
-        
-      
------------------------------------------------------
---SIMPLE LOOP:
+----------------------------------------------------------------------------------------------------
+--NEASTED IF: IF INSIDE ANOTHER IF
+DECLARE
+  X INT:=&X;
+  Y INT:=&Y;
+  Z INT:=&Z;
+BEGIN 
+  IF X>Y THEN
+    IF X>Z THEN
+      DBMS_OUTPUT.PUT_LINE(X || ' X IS GREATER');
+    ELSE
+      DBMS_OUTPUT.PUT_LINE(Z || ' Z IS GREATER');
+    END IF;
+  ELSE 
+      IF Y>Z THEN
+          DBMS_OUTPUT.PUT_LINE(Y ||' Y IS GREATER');
+      ELSE
+        DBMS_OUTPUT.PUT_LINE(Z || ' Z IS GREATER');
+      END IF;
+  END IF;
+END;
+/
+/*CASE:
+1.SIMPLE CASE:EQUALITY*/
+DECLARE
+  N INT:=15;
+BEGIN
+  CASE mod(N,2)
+    WHEN 0 THEN
+      DBMS_OUTPUT.PUT_LINE(N ||' IS EVEN ');
+    WHEN 1 THEN 
+      DBMS_OUTPUT.PUT_LINE(N || ' IS ODD');
+  END CASE;
+END;
+/
+/*2.SEARCHED CASE:
+NON-EQUALITY
+*/
+DECLARE
+  I INT:=&I;
+BEGIN
+  CASE
+    WHEN I>0 THEN
+      DBMS_OUTPUT.PUT_LINE(I || ' IS POSITIVE');
+    WHEN I<0 THEN
+      DBMS_OUTPUT.PUT_LINE(I || ' IS NEGATIVE');
+    ELSE
+      DBMS_OUTPUT.PUT_LINE(I || ' IS ZERO');
+  END CASE;
+END;
+/
+-----------------------------------------------------------------
+--2.looping control structures:-which is used for repeatedly execute the statemnets in the loop.
+--a)simple loop:
+DECLARE
+  I INT;
+BEGIN 
+  i:=1;
+  LOOP 
+    dbms_output.put_line(i);
+    i:=i+1;
+    exit when i>=5;
+  END LOOP;
+END;
+/
+set serveroutput on;
+--while loop:
+DECLARE 
+  I INT:=1;
+BEGIN
+  WHILE (I<=20)
+    LOOP
+      DBMS_OUTPUT.PUT_LINE('HERE YOU GO ' || I);
+      I:=I+1;
+    END LOOP;
+END;
+/
+-------------------------------------------------------------------
+--for loop:
 DECLARE 
   N INT;
 BEGIN 
@@ -187,6 +260,7 @@ BEGIN
 END;
 /
 ------------------------------------------------------------------------------
+--for loop 
 DECLARE 
   I INT;
 BEGIN
@@ -197,7 +271,112 @@ BEGIN
 END;
 /
 ---------------------------------------------------------------------------------------------
---2.looping control structures:-which is used for repeatedly execute the statemnets in the loop.
 --3.jumping control structures:-used for jump from loop.
+--GOTO :
+--A)JUMPING BACKWARD;
 
+DECLARE
+  I INT:=1;
+BEGIN
+  <<LABEL_TEST>>
+    DBMS_OUTPUT.PUT_LINE(I);
+    I:=I+1;
+    IF I<4 THEN
+  GOTO LABEL_TEST;
+    END IF;
+END;
+/
+SET SERVEROUTPUT ON;
+--B)JUMPING FORWARD;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('HI');
+  GOTO TEST1;
+    DBMS_OUTPUT.PUT_LINE('HI');-- GOTO WORKING AS SKIP THIS LABEL AND EXECUTE ANOTHER LABEL.
+  <<TEST1>>
+    DBMS_OUTPUT.PUT_LINE('WELCOME TO GOTO FORWARD');
+END;
+/
+-------------------------------------------------------------------------------
+--EXIT: WHICH IS USED FOR TERMINATE LOOP IN THE MIDDLE OF THE EXECUTION;
+BEGIN
+  FOR I IN 1..10
+    LOOP
+      DBMS_OUTPUT.PUT_LINE(I);
+      IF I=5 THEN
+          EXIT;
+      END IF;
+    END LOOP;
+END;
+/
+SET SERVEROUTPUT ON;
+--EXIT WHEN: TERMINATE THE LOOP 
+BEGIN
+  FOR I IN 1..20
+  LOOP
+    DBMS_OUTPUT.PUT_LINE(I);
+    EXIT WHEN I=10;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('HERE THE SERIAL NUMBERS STOP');
+END;
+/
+-----------------------------------------------------------------------------
+--1.IN THE PL/SQL DML,DQL AND TCL ARE USED.
+--2.If we want used the DDL commands use DYNAMIC SQL in the PLS/SQL.
+--3. All sysntax same as SQL in PL/SQL. But DQL -SELECT command sysntax is different.
+/*select <col_list> into <var_list>
+  from <table_nm> where <condition>;
+  */
+  SELECT * FROM EMP1;
+--find data of employee first name and salary where employee id
+DECLARE
+  V_EMPLOYEE_ID EMP1.EMPLOYEE_ID%TYPE;
+  V_FIRST_NAME EMP1.FIRST_NAME%TYPE;
+  V_SALARY EMP1.SALARY%TYPE;
+BEGIN
+  V_EMPLOYEE_ID := &employee_id;
+  SELECT FIRST_NAME,SALARY INTO V_FIRST_NAME,V_SALARY 
+    FROM EMP1 
+        WHERE EMPLOYEE_ID=V_EMPLOYEE_ID;
+  DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME:' || V_FIRST_NAME ||' SALARY:' || V_SALARY || ' At EMPLOYEE ID: ' ||V_EMPLOYEE_ID );
+END;
+/
+set serveroutput on;
+--find employee experience in years where employee id
+DECLARE
+  V_EMPLOYEE_ID EMP1.EMPLOYEE_ID%TYPE;
+  v_hire_date EMP1.hire_date%type;
+  v_expr int;
+Begin
+  v_employee_id:=&employee_id;
+  select hire_date into v_hire_date 
+    from emp1
+      where employee_id =v_employee_id;
+  v_expr:=(sysdate-V_hire_date)/365;
+  DBMS_OUTPUT.PUT_LINE(v_hire_date || ' experience of employee: '||v_expr);
+END;
+/
+------------------------------------------------------------------------------
+--delete record of employee who's experinec greaterthan 40 .
+DECLARE
+  V_EMPLOYEE_ID EMP1.EMPLOYEE_ID%TYPE;
+  V_HIRE_DATE EMP1.HIRE_DATE%TYPE;
+  V_EXPR INT;
+BEGIN
+  V_EMPLOYEE_ID:=&EMPLOYEE_ID;
+  SELECT HIRE_DATE INTO V_HIRE_DATE FROM EMP1
+    WHERE EMPLOYEE_ID=V_EMPLOYEE_ID;
+  --FIND EXPERIENCE
+  V_EXPR :=(SYSDATE-V_HIRE_DATE)/365;
+  DBMS_OUTPUT.PUT_LINE('EXPERIENCE OF EMPLOYEE:' || V_EXPR || ' YEARS');
+   
+  -- DELETE RECORD WHO'S >40 EXPR
+  IF V_EXPR>35 THEN
+    DELETE FROM EMP1 WHERE EMPLOYEE_ID=V_EMPLOYEE_ID;
+    commit;
+    DBMS_OUTPUT.PUT_LINE('DELETE THE RECORD SUCCESSFULLY' || ' AT EMPLOYEE ID:' || V_EMPLOYEE_ID);
+  END IF;  
+END;
+/
+SET SERVEROUTPUT ON;
+select * from emp1;
 
