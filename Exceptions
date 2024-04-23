@@ -1,0 +1,132 @@
+/*  ERRORS:It has 3-types
+1.complie-time errors:- syntax errors
+2.logical errors:- which is developer mistakes
+3.run-time errors:-which occured at run-time, abnormally stop the execution of code.
+Exceptional Handling: "The way of handling the run-time errors".
+a)system-define errors(implicit handle by oracle):-
+b)user-define erroes(explicity handle by the user):-raise keyword
+named and unnamed exceptions
+*/
+--ZERO-DIVIDE
+DECLARE 
+  X INT;
+  Y INT;
+  Z FLOAT ;
+BEGIN
+  X:=&X;
+  Y:=&Y;
+  Z:=X/Y;
+  DBMS_OUTPUT.PUT_LINE('Q:X/Y=' || Z);
+  EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+      DBMS_OUTPUT.PUT_LINE(X || ' CAN NOT DIVIDE WITH ' || Y );
+    WHEN value_error THEN
+      DBMS_OUTPUT.PUT_LINE('DATASIZE or DATATYPE IS NOT MATCHED');
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('run-time error occurs.');
+      
+END;
+/
+SET SERVEROUTPUT ON;
+--------------------------------------------------------------------------------
+--NO_DATA_FOUND
+SELECT * FROM EMP1;
+-----------------------------------------------
+DECLARE
+  V_EMPLOYEE_ID EMP1.EMPLOYEE_ID%TYPE;
+  V_FIRST_NAME EMP1.FIRST_NAME%TYPE;
+  V_SALARY EMP1.SALARY%TYPE;
+BEGIN
+  V_EMPLOYEE_ID:=&EMPLOYEE_ID;
+  
+  SELECT FIRST_NAME,SALARY INTO V_FIRST_NAME,V_SALARY FROM EMP1 WHERE EMPLOYEE_ID=V_EMPLOYEE_ID;
+  DBMS_OUTPUT.PUT_LINE(V_FIRST_NAME ||', ' || V_SALARY);
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('DATA NOT FOUND ');
+    WHEN VALUE_ERROR THEN
+      DBMS_OUTPUT.PUT('CHECK DATA TYPE OR DATESIZE');
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('RUN-TIME ERRORS OCCURED'); 
+END;
+/
+SET SERVEROUTPUT ON;
+------------------------------------------------------------------------------------------------
+--dup_val_on_index
+desc emp1;
+SELECT * FROM EMP1;
+DECLARE
+  v_employee_id emp1.employee_id%type;
+BEGIN
+  v_employee_id := &employee_id;
+  insert into emp1 values (v_employee_id);
+  commit;
+  DBMS_OUTPUT.PUT(v_employee_id || ',RECORD INSERTED ');
+  
+  EXCEPTION 
+   WHEN DUP_VAL_ON_INDEX THEN -- exception occured while duplicate values entered. (at primary key)
+    DBMS_OUTPUT.PUT_LINE(v_employee_id ||',PK IS not allows DUPLICATE VALUE,SO ENTER UNIQUE ID');
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('RUN-TIME ERROR');
+END;
+/
+SET SERVEROUTPUT ON;
+--------------------------------------------------------------------------------------
+/*user exception>>1.declare the exception:- exception_name EXCEPTION;
+                  2.RAISE the exception:- RAISE exception_name;
+                */
+--Denominator can't divide by one with user exception.
+DECLARE
+  X INT;
+  Y INT;
+  Z FLOAT;
+  ONE_DIVIDE exception;
+BEGIN
+  x:=&x;
+  y:=&y;
+  
+  IF y=1 then
+    raise one_divide;
+  else
+    z:=x/y;
+    dbms_output.put_line('quotient:'|| z);
+  end IF;
+  EXCEPTION
+    when one_divide then
+      dbms_output.put_line('can not divide with one' );
+    when zero_divide then
+      dbms_output.put_line('can not divide with zero');
+END;
+/
+set serveroutput ON;
+  
+select * from emp1;
+desc emp1;
+--------------------------------------------------------
+select employee_id,commission_pct FROM emp1;
+--update salary where employee no.296 if commision is null then raise exception
+/*
+1.declare exception
+2.acco to condition need to update salary if comm null raise exception
+*/
+DECLARE
+  V_EMP_ID emp1.employee_id%type;
+  v_SAL     emp1.salary%type;
+  v_comm EMP1.COMMISSION_PCT%type;
+  v_comm_null Exception;
+BEGIN
+  v_emp_id:=&employee_id;
+  
+  select employee_id,salary,commission_pct into v_emp_id,v_sal,v_comm from emp1 
+              where employee_id=v_emp_id;
+  if v_comm is NULL then
+    RAISE_APPLICATION_ERROR(-20050,'COMMISION IS NULL So, salary can not update'||v_emp_id || ',' || v_sal ||','||v_comm);
+   else 
+    update emp1 set salary=salary+2000 where employee_id=v_emp_id;
+    commit;
+    dbms_output.put_line('salary update successful:-' ||v_emp_id || ',' || v_sal ||','||v_comm);
+  end IF;
+  
+END;
+/
+set serveroutput ON;
